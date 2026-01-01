@@ -18,9 +18,9 @@ Proyek IoT menggunakan **ESP8266 (D1 Mini)** untuk mengontrol LED melalui REST A
 
 Klik gambar di bawah untuk menonton video demonstrasi lengkap:
 
-[![Video Demonstrasi ESP8266](https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg)](https://www.youtube.com/watch?v=VIDEO_ID)
+[![Video Demonstrasi ESP8266](https://img.youtube.com/vi/5QLaN7RYft8/maxresdefault.jpg)](https://www.youtube.com/watch?v=5QLaN7RYft8)
 
-> **📌 Catatan:** Ganti `VIDEO_ID` dengan ID video YouTube Anda
+> **🎬 YouTube Shorts:** [youtube.com/shorts/5QLaN7RYft8](https://youtube.com/shorts/5QLaN7RYft8)
 
 ## 🚀 Cara Menggunakan
 
@@ -35,7 +35,7 @@ Klik gambar di bawah untuk menonton video demonstrasi lengkap:
 
 3. Clone repository ini:
 ```bash
-git clone https://github.com/sismadi/iot.git
+git clone https://github.com/NameRezananda/UAS-ubiquitos.git
 ```
 
 4. Konfigurasi WiFi dan API Key:
@@ -92,12 +92,11 @@ curl -X POST http://<ESP_IP>/api/led \
 
 ## 🎓 Informasi Pengembang
 
-- **Nama:** [Nama Anda]
-- **NIM:** [NIM Anda]
+- **Nama:** Rezananda
+- **NIM:** 202303110012
 - **Mata Kuliah:** Internet of Things (IoT)
 - **Semester:** 5
-- **GitHub Repository:** [github.com/sismadi/iot](https://github.com/sismadi/iot)
-
+- **GitHub Repository:** [https://github.com/NameRezananda/UAS-ubiquitos](https://github.com/NameRezananda/UAS-ubiquitos)
 ## 📄 Lisensi
 
 MIT License - Feel free to use this project for learning purposes
