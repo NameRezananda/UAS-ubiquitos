@@ -90,7 +90,7 @@ curl -X POST http://<ESP_IP>/api/led \
 | GET | `/api/led?state=on&key=xxx` | Turn LED on/off |
 | POST | `/api/led` | Turn LED on/off (JSON body) |
 
-## 🎓 Informasi Pengembang
+## 🎓 Informasi Mahasiswa
 
 - **Nama:** Rezananda
 - **NIM:** 202303110012
