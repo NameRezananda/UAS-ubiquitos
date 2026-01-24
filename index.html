@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -66,19 +67,65 @@
             animation: float 25s infinite;
         }
 
-        .bg-animation span:nth-child(1) { left: 10%; animation-delay: 0s; }
-        .bg-animation span:nth-child(2) { left: 20%; animation-delay: 2s; animation-duration: 20s; }
-        .bg-animation span:nth-child(3) { left: 30%; animation-delay: 4s; }
-        .bg-animation span:nth-child(4) { left: 40%; animation-delay: 6s; animation-duration: 18s; }
-        .bg-animation span:nth-child(5) { left: 50%; animation-delay: 8s; }
-        .bg-animation span:nth-child(6) { left: 60%; animation-delay: 10s; animation-duration: 22s; }
-        .bg-animation span:nth-child(7) { left: 70%; animation-delay: 12s; }
-        .bg-animation span:nth-child(8) { left: 80%; animation-delay: 14s; animation-duration: 24s; }
+        .bg-animation span:nth-child(1) {
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .bg-animation span:nth-child(2) {
+            left: 20%;
+            animation-delay: 2s;
+            animation-duration: 20s;
+        }
+
+        .bg-animation span:nth-child(3) {
+            left: 30%;
+            animation-delay: 4s;
+        }
+
+        .bg-animation span:nth-child(4) {
+            left: 40%;
+            animation-delay: 6s;
+            animation-duration: 18s;
+        }
+
+        .bg-animation span:nth-child(5) {
+            left: 50%;
+            animation-delay: 8s;
+        }
+
+        .bg-animation span:nth-child(6) {
+            left: 60%;
+            animation-delay: 10s;
+            animation-duration: 22s;
+        }
+
+        .bg-animation span:nth-child(7) {
+            left: 70%;
+            animation-delay: 12s;
+        }
+
+        .bg-animation span:nth-child(8) {
+            left: 80%;
+            animation-delay: 14s;
+            animation-duration: 24s;
+        }
 
         @keyframes float {
-            0%, 100% { transform: translateY(100vh) scale(0); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateY(-100vh) scale(1); }
+
+            0%,
+            100% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100vh) scale(1);
+            }
         }
 
         .container {
@@ -130,8 +177,15 @@
         }
 
         @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         header::before {
@@ -146,8 +200,15 @@
         }
 
         @keyframes slideRight {
-            0%, 100% { left: -100%; }
-            50% { left: 100%; }
+
+            0%,
+            100% {
+                left: -100%;
+            }
+
+            50% {
+                left: 100%;
+            }
         }
 
         .header-icon {
@@ -161,8 +222,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
         }
 
         h1 {
@@ -210,8 +278,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .section {
@@ -356,7 +431,8 @@
         }
 
         /* List Styles */
-        ul, ol {
+        ul,
+        ol {
             margin-left: 25px;
             color: var(--text-secondary);
         }
@@ -450,6 +526,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -457,6 +534,7 @@
         }
     </style>
 </head>
+
 <body data-theme="dark">
     <!-- Animated Background -->
     <div class="bg-animation">
@@ -494,8 +572,10 @@
         <div class="content fade-in-up">
             <div class="section">
                 <h2><i class="fas fa-info-circle"></i> Deskripsi Proyek</h2>
-                <p>Proyek IoT menggunakan <strong>ESP8266 (D1 Mini)</strong> untuk mengontrol LED melalui REST API. Sistem ini memungkinkan kontrol LED secara remote melalui WiFi dengan autentikasi API key, mendukung metode GET dan POST dengan CORS headers untuk integrasi web application.</p>
-                
+                <p>Proyek IoT menggunakan <strong>ESP8266 (D1 Mini)</strong> untuk mengontrol LED melalui REST API.
+                    Sistem ini memungkinkan kontrol LED secara remote melalui WiFi dengan autentikasi API key, mendukung
+                    metode GET dan POST dengan CORS headers untuk integrasi web application.</p>
+
                 <div class="features-grid" style="margin-top: 30px;">
                     <div class="feature-card">
                         <i class="fas fa-wifi"></i>
@@ -525,15 +605,15 @@
                 <h2><i class="fas fa-video"></i> Video Demonstrasi</h2>
                 <p>Tonton video demonstrasi lengkap implementasi dan testing ESP8266 LED Control System:</p>
                 <div class="video-container">
-                    <iframe 
-                        src="https://www.youtube.com/embed/5QLaN7RYft8" 
-                        allowfullscreen
+                    <iframe src="https://www.youtube.com/embed/5QLaN7RYft8" allowfullscreen
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
                     </iframe>
                 </div>
                 <div class="info-card">
                     <strong><i class="fas fa-check-circle"></i> Video ID:</strong> <code>5QLaN7RYft8</code><br>
-                    <strong><i class="fas fa-link"></i> Source:</strong> <a href="https://youtube.com/shorts/5QLaN7RYft8" target="_blank" style="color: var(--accent-primary);">YouTube Shorts</a>
+                    <strong><i class="fas fa-link"></i> Source:</strong> <a
+                        href="https://youtube.com/shorts/5QLaN7RYft8" target="_blank"
+                        style="color: var(--accent-primary);">YouTube Shorts</a>
                 </div>
             </div>
 
@@ -578,7 +658,8 @@ void sendCORS() {
                 <h2><i class="fas fa-rocket"></i> Cara Menggunakan</h2>
                 <ol>
                     <li><strong>Hardware Setup:</strong> Hubungkan ESP8266 D1 Mini via USB</li>
-                    <li><strong>Arduino IDE:</strong> Install library ESP8266WiFi, ESP8266WebServer, dan ArduinoJson</li>
+                    <li><strong>Arduino IDE:</strong> Install library ESP8266WiFi, ESP8266WebServer, dan ArduinoJson
+                    </li>
                     <li><strong>Configuration:</strong> Ubah WIFI_SSID, WIFI_PASS, dan API_KEY sesuai kebutuhan</li>
                     <li><strong>Upload Code:</strong> Upload sketch ke ESP8266</li>
                     <li><strong>Get IP Address:</strong> Buka Serial Monitor untuk melihat IP address ESP8266</li>
@@ -628,7 +709,8 @@ POST http://&lt;ESP_IP&gt;/api/led
                     <p><strong>NIM:</strong> 202303110012</p>
                     <p><strong>Mata Kuliah:</strong> Internet of Things (IoT)</p>
                     <p><strong>Semester:</strong> 5</p>
-                    <p><strong>GitHub:</strong> <a href="https://github.com/NameRezananda/UAS-ubiquitos" target="_blank" style="color: var(--accent-primary);">github.com/NameRezananda/UAS-ubiquitos</a></p>
+                    <p><strong>GitHub:</strong> <a href="https://github.com/NameRezananda/UAS-ubiquitos" target="_blank"
+                            style="color: var(--accent-primary);">github.com/NameRezananda/UAS-ubiquitos</a></p>
                 </div>
             </div>
         </div>
@@ -636,7 +718,8 @@ POST http://&lt;ESP_IP&gt;/api/led
         <!-- Footer -->
         <footer>
             <p><i class="fas fa-copyright"></i> 2026 UbiqIotos - ESP8266 IoT Project</p>
-            <p style="margin-top: 10px; font-size: 0.85em;">Built with <i class="fas fa-heart" style="color: #ef4444;"></i> for IoT Learning</p>
+            <p style="margin-top: 10px; font-size: 0.85em;">Built with <i class="fas fa-heart"
+                    style="color: #ef4444;"></i> for IoT Learning</p>
         </footer>
     </div>
 
@@ -646,7 +729,7 @@ POST http://&lt;ESP_IP&gt;/api/led
             const body = document.body;
             const themeIcon = document.getElementById('theme-icon');
             const currentTheme = body.getAttribute('data-theme');
-            
+
             if (currentTheme === 'dark') {
                 body.setAttribute('data-theme', 'light');
                 themeIcon.className = 'fas fa-sun';
@@ -683,4 +766,5 @@ POST http://&lt;ESP_IP&gt;/api/led
         document.querySelectorAll('.content').forEach(el => observer.observe(el));
     </script>
 </body>
+
 </html>

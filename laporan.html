@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Presensi Wajah IoT - Ubicomp</title>
+    <!-- Tailwind CSS for quick styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        canvas {
+            transform: scaleX(-1);
+            /* Mirror effect */
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-100 font-sans min-h-screen">
+
+    <!-- Loading Screen -->
+    <div id="loading" class="loading">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+        <p>Memuat OpenCV.js... (Mohon tunggu)</p>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-blue-400 mb-2">Sistem Presensi Wajah IoT</h1>
+            <p class="text-gray-400">Ubiquitous Computing Project - ESP32 Integration</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+
+            <!-- Left Panel: Configurations -->
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+                <h2 class="text-xl font-semibold mb-6 flex items-center gap-2">
+                    <span>⚙️</span> Konfigurasi Sistem
+                </h2>
+
+                <div class="space-y-4">
+                    <!-- ESP32 Connection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">ESP32 IP Address</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="espIp" value="192.168.1.xxx"
+                                class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500">
+                            <button onclick="testConnection()"
+                                class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition">Test</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 1: Register Face -->
+                    <div class="pt-4 border-t border-gray-700">
+                        <label class="block text-sm font-medium text-blue-400 mb-2">Langkah 1: Registrasi Wajah</label>
+                        <p class="text-xs text-gray-500 mb-3">Klik tombol di bawah saat wajah Anda terlihat jelas dalam
+                            kotak hijau untuk menyimpan data referensi.</p>
+                        <button id="btnCapture"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg transition transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                            📸 Registrasi / Ambil Foto Referensi
+                        </button>
+                    </div>
+
+                    <!-- Reference Preview -->
+                    <div id="refContainer" class="hidden mt-4 text-center">
+                        <p class="text-xs text-green-400 mb-2">✔ Data Wajah Tersimpan</p>
+                        <canvas id="canvasRef" width="100" height="100"
+                            class="mx-auto border border-green-500 hidden"></canvas>
+                        <!-- We use hidden canvas for processing, visual cue is enough -->
+                    </div>
+
+                    <!-- Step 2: Verification Status -->
+                    <div class="pt-4 border-t border-gray-700">
+                        <label class="block text-sm font-medium text-blue-400 mb-2">Langkah 2: Status Presensi</label>
+                        <div id="statusBox" class="bg-gray-900 p-4 rounded-lg text-center border border-gray-700">
+                            <p class="text-gray-500">Menunggu verifikasi...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-gray-700 text-xs text-center text-gray-500">
+                    <p>Log Aktivitas:</p>
+                    <div id="logs"
+                        class="h-32 overflow-y-auto font-mono text-left bg-black p-2 mt-2 rounded leading-tight text-green-500">
+                        > System initialized...<br>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Camera & Visualization -->
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 flex flex-col items-center">
+                <div class="relative w-full max-w-[640px]">
+                    <video id="videoInput" width="640" height="480" autoplay playsinline class="hidden"></video>
+                    <canvas id="canvasOutput" width="640" height="480"
+                        class="w-full h-auto bg-black rounded-lg"></canvas>
+                    <div class="absolute top-2 right-2 bg-red-600 px-2 py-1 rounded text-xs font-bold text-white animate-pulse"
+                        id="liveIndicator">LIVE</div>
+                </div>
+                <p class="mt-4 text-sm text-gray-400 text-center">
+                    Pastikan pencahayaan cukup dan wajah menghadap kamera.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load OpenCV.js -->
+    <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady();"
+        onerror="onOpenCvError();"></script>
+
+    <script>
+        let video = document.getElementById('videoInput');
+        let buttonCapture = document.getElementById('btnCapture');
+        let statusBox = document.getElementById('statusBox');
+        let streaming = false;
+        let faceCascade = null;
+        let ReferenceFace = null;
+        let isFaceRegistered = false;
+        let lastPresensiTime = 0;
+
+        // Configuration
+        const PRESENSI_COOLDOWN = 5000; // 5 detik antar presensi
+        const MATCH_THRESHOLD = 0.5; // Threshold sederhana (bisa disesuaikan)
+
+        function log(msg) {
+            const logs = document.getElementById('logs');
+            logs.innerHTML = `> ${msg}<br>` + logs.innerHTML;
+        }
+
+        function onOpenCvError() {
+            document.getElementById('loading').innerHTML = '<p class="text-red-500">Gagal memuat OpenCV.js. Cek koneksi internet.</p>';
+        }
+
+        function onOpenCvReady() {
+            log("OpenCV.js Loaded");
+            document.getElementById('loading').style.display = 'none';
+            startCamera();
+        }
+
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                .then(function (stream) {
+                    video.srcObject = stream;
+                    video.play();
+                    log("Camera started");
+                })
+                .catch(function (err) {
+                    log("Error: " + err);
+                });
+
+            video.addEventListener('canplay', function () {
+                if (!streaming) {
+                    streaming = true;
+                    initOpenCV();
+                }
+            }, false);
+        }
+
+        function initOpenCV() {
+            try {
+                // Initialize resources built into OpenCV.js is tricky without local files
+                // We will create a generic CascadeClassifier if possible, but standard opencv.js 
+                // typically needs an XML file loaded into the virtual file system.
+                // WE MUST LOAD HAARCASCADE XML FROM URL first.
+
+                let utils = new Utils('errorMessage'); // Helper requires utils.js usually, but let's manual load
+
+                // Manual loader for XML
+                const xmlUrl = 'https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml';
+                createFileFromUrl('haarcascade_frontalface_default.xml', xmlUrl, () => {
+                    log("Haar Cascade Loaded");
+                    faceCascade = new cv.CascadeClassifier();
+                    faceCascade.load('haarcascade_frontalface_default.xml');
+
+                    // Start Processing Loop
+                    requestAnimationFrame(processVideo);
+                });
+
+            } catch (e) {
+                log("Init Error: " + e);
+            }
+        }
+
+        // Helper to load file to Emscripten FS
+        function createFileFromUrl(path, url, callback) {
+            let request = new XMLHttpRequest();
+            request.open('GET', url, true);
+            request.responseType = 'arraybuffer';
+            request.onload = function (ev) {
+                if (request.readyState === 4) {
+                    if (request.status === 200) {
+                        let data = new Uint8Array(request.response);
+                        cv.FS_createDataFile('/', path, data, true, false, false);
+                        callback();
+                    } else {
+                        log("Failed to load XML: " + request.status);
+                    }
+                }
+            };
+            request.send();
+        }
+
+        let src, gray, cap, faces;
+
+        function processVideo() {
+            if (!streaming) return;
+
+            try {
+                if (!src) {
+                    src = new cv.Mat(video.height, video.width, cv.CV_8UC4);
+                    gray = new cv.Mat(video.height, video.width, cv.CV_8UC1);
+                    cap = new cv.VideoCapture(video);
+                    faces = new cv.RectVector();
+                }
+
+                cap.read(src);
+                cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+
+                // Detect faces
+                let mSize = new cv.Size(0, 0);
+                // detectMultiScale(image, objects, scaleFactor, minNeighbors, flags, minSize, maxSize)
+                faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0);
+
+                // Draw rectangles
+                for (let i = 0; i < faces.size(); ++i) {
+                    let face = faces.get(i);
+                    let point1 = new cv.Point(face.x, face.y);
+                    let point2 = new cv.Point(face.x + face.width, face.y + face.height);
+
+                    // Logic: If registered, verify. If not, just draw Green (Ready to Register)
+                    let color = isFaceRegistered ? [255, 0, 0, 255] : [0, 255, 0, 255]; // Red for scanning, Green for open
+
+                    if (isFaceRegistered) {
+                        // VERIFICATION LOGIC (SIMPLE: Histogram Comparison)
+                        let currentFaceROI = gray.roi(face);
+                        let similarity = compareHistograms(ReferenceFace, currentFaceROI);
+                        currentFaceROI.delete();
+
+                        if (similarity > MATCH_THRESHOLD) {
+                            color = [0, 255, 0, 255]; // Green - Valid
+                            triggerPresensi();
+
+                            // Visual Feedback text
+                            cv.putText(src, "MATCHED - " + similarity.toFixed(2), new cv.Point(face.x, face.y - 10), cv.FONT_HERSHEY_SIMPLEX, 0.5, [0, 255, 0, 255], 1);
+                        } else {
+                            color = [0, 0, 255, 255]; // Red - Invalid
+                            cv.putText(src, "UNKNOWN", new cv.Point(face.x, face.y - 10), cv.FONT_HERSHEY_SIMPLEX, 0.5, [255, 0, 0, 255], 1);
+                        }
+                    }
+
+                    cv.rectangle(src, point1, point2, color, 2);
+                }
+
+                cv.imshow('canvasOutput', src);
+                requestAnimationFrame(processVideo);
+            } catch (err) {
+                log("Process Error: " + err);
+            }
+        }
+
+        function compareHistograms(mat1, mat2) {
+            // Very basic comparison using Histograms
+            try {
+                let srcVec = new cv.MatVector(); srcVec.push_back(mat1);
+                let dstVec = new cv.MatVector(); dstVec.push_back(mat2);
+
+                let hist1 = new cv.Mat(), hist2 = new cv.Mat();
+                let mask = new cv.Mat();
+                let histSize = [50]; // bucket size
+                let ranges = [0, 256];
+
+                // Calculate Histograms
+                cv.calcHist(srcVec, [0], mask, hist1, histSize, ranges);
+                cv.calcHist(dstVec, [0], mask, hist2, histSize, ranges);
+
+                // Normalize
+                cv.normalize(hist1, hist1, 0, 1, cv.NORM_MINMAX);
+                cv.normalize(hist2, hist2, 0, 1, cv.NORM_MINMAX);
+
+                // Compare (Method 0 = Correlation)
+                let result = cv.compareHist(hist1, hist2, 0);
+
+                srcVec.delete(); dstVec.delete(); hist1.delete(); hist2.delete(); mask.delete();
+
+                return result;
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        // Button Listeners
+        buttonCapture.addEventListener('click', () => {
+            if (faces && faces.size() > 0) {
+                // Capture the first face found as reference
+                let face = faces.get(0);
+                let roiSrc = gray.roi(face);
+
+                // Clone so we keep it
+                if (ReferenceFace) ReferenceFace.delete();
+                ReferenceFace = roiSrc.clone();
+                roiSrc.delete();
+
+                isFaceRegistered = true;
+
+                document.getElementById('refContainer').classList.remove('hidden');
+                log("✅ Wajah berhasil didaftarkan! Sistem sekarang dalam mode verifikasi.");
+                statusBox.innerHTML = '<p class="text-green-400 font-bold">Wajah Terdaftar. Mencocokkan...</p>';
+                buttonCapture.innerText = "Reset / Daftar Ulang";
+                buttonCapture.classList.replace('bg-blue-600', 'bg-gray-600');
+            } else {
+                alert("Wajah tidak terdeteksi. Pastikan wajah ada di kotak hijau.");
+            }
+        });
+
+        function triggerPresensi() {
+            let now = Date.now();
+            if (now - lastPresensiTime > PRESENSI_COOLDOWN) {
+                let ip = document.getElementById('espIp').value;
+                if (!ip.includes("192")) {
+                    log("⚠️ IP ESP32 belum valid.");
+                    return;
+                }
+
+                lastPresensiTime = now;
+                log("🔄 Mengirim sinyal ke ESP32...");
+                statusBox.innerHTML = '<p class="text-yellow-400 font-bold">Mengirim Data...</p>';
+
+                // Send to ESP32
+                // Gunakan mode no-cors jika perlu, tapi kita sudah set CORS di ESP32
+                fetch(`http://${ip}/presensi`)
+                    .then(response => {
+                        log("✅ ESP32 Response: Presensi OK");
+                        statusBox.innerHTML = '<p class="text-green-500 font-bold text-xl">PRESENSI BERHASIL</p>';
+                        setTimeout(() => {
+                            statusBox.innerHTML = '<p class="text-gray-400">Menunggu...</p>';
+                        }, 3000);
+                    })
+                    .catch(err => {
+                        log("❌ Gagal connect ke ESP32: " + err);
+                        statusBox.innerHTML = '<p class="text-red-500">Gagal Kirim Data</p>';
+                    });
+            }
+        }
+
+        function testConnection() {
+            let ip = document.getElementById('espIp').value;
+            log("Testing connection to: " + ip);
+            fetch(`http://${ip}/`)
+                .then(res => res.text())
+                .then(txt => {
+                    log("Connected! Response: " + txt);
+                })
+                .catch(err => log("Connection failed: " + err));
+        }
+
+    </script>
+</body>
+
+</html>
